@@ -1,11 +1,6 @@
 ECML PKDD 2021 - Discovery Challenge
 ==============================
 
-Our results
--------------
-https://docs.google.com/spreadsheets/d/1bsIPCZqQiToaxMSY4HYxHV42kNnmXT5kXaNAT-VrUaM/edit#gid=0
-
-
 Overview
 ------------
 
