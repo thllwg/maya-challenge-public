@@ -1,0 +1,29 @@
+name: maya-challenge 
+channels:
+  - pytorch
+  - conda-forge
+dependencies:
+  - cudatoolkit=11.1
+  - python=3.8.6
+  - matplotlib
+  - scikit-learn
+  - tqdm
+  - numpy
+  - h5py
+  - pandas
+  - click
+  - Sphinx
+  - coverage
+  - flake8
+  - python-dotenv
+  - gdown
+  - ipykernel
+  - jupyter
+  - Pillow
+  - pytorch
+  - torchvision>=0.9.1
+  - future
+  - tensorboard
+  - awscli
+  - autopep8
+  - timm

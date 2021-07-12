@@ -1,0 +1,24 @@
+#!/bin/bash
+# normal cpu stuff: allocate cpus, memory
+#SBATCH --ntasks=8 --mem=16GB
+#SBATCH --job-name="find maya"
+# we run on the gpu partition and we allocate 1 titanx gpu
+#SBATCH -p gpu --gres=gpu:titanrtx:1
+#SBATCH --time=1:00:00
+#SBATCH --mail-type=END,FAIL
+# #SBATCH --mail-user=
+#SBATCH --exclude a00610,a00757
+
+#your script, in this case: write the hostname and the ids of the chosen gpus.
+
+hostname
+echo $CUDA_VISIBLE_DEVICES
+conda init bash
+conda activate maya
+# train model
+lr=${1:-3e-4}
+eps=${2:-1e-8}
+fi=${3:-0}
+lf=${4:-bce}
+
+python -m src.models.train_model -d data/processed/ --batch-size 8 --num-workers 4 --log-dir runs/ --learning-rate $lr --opt-eps $eps --fusion-idx $fi --advanced-augmentation --loss-function $lf

@@ -1,0 +1,32 @@
+debug/**
+
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+*.log
+.git
+
+# data, docs and models folder content should be rendered from running code in /repo after build
+
+# data/in/**
+data/raw/**
+data/external/**
+data/interim/**
+data/processed/**
+docs/**
+models/**
+runs/**
+references/**
+reports/**
