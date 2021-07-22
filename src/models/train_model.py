@@ -214,7 +214,7 @@ def train_net(net,
                               global_step)
 
             # Validation at the end of epoch
-            val_loss, val_iou = eval_net(net, val_loader, device, criterion, writer, logging, global_step, iou_absent)
+            val_loss, val_iou = eval_net(net, val_loader, device, criterion, writer, global_step, iou_absent)
 
             if exclude_aguada:
                 val_iou_total = (val_iou['building'] + val_iou['platform']) / 2
