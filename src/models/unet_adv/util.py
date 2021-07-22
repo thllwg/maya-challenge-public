@@ -10,44 +10,9 @@ from src.models.unet_adv.swin_generator import SwinTransformer
 def noop(x): return x
 
 
-# or: ELU+init (a=0.54; gain=1.55)
-# A memory-efficient implementation of Swish function
-class SwishImplementation(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, i):
-        result = i * torch.sigmoid(i)
-        ctx.save_for_backward(i)
-        return result
-
-    @staticmethod
-    def backward(ctx, grad_output):
-        i = ctx.saved_tensors[0]
-        sigmoid_i = torch.sigmoid(i)
-        return grad_output * (sigmoid_i * (1 + i * (1 - sigmoid_i)))
-
-
-@torch.jit.script
-def mish(x):
-    return x * torch.tanh(F.softplus(x))
-
-
-class Mish(nn.Module):
-    def forward(self, x):
-        return mish(x)
-
-
-class MemoryEfficientSwish(nn.Module):
-    def forward(self, x):
-        return SwishImplementation.apply(x)
-
-
 def get_act(name):
     if name == "elu":
         return nn.ELU(inplace=True, alpha=0.54)
-    elif name == "swish":
-        return MemoryEfficientSwish()
-    elif name == "mish":
-        return Mish()
     elif name == "gelu":
         return nn.GELU()
     elif name in ["leakyrelu", "leaky_relu"]:
@@ -127,7 +92,10 @@ def custom_conv_layer(ni: int, nf: int, ks: int = 3, stride: int = 1, padding: i
 
 
 class CustomPixelShuffle_ICNR(nn.Module):
-    "Upsample by `scale` from `ni` filters to `nf` (default `ni`), using `nn.PixelShuffle`, `icnr` init, and `weight_norm`."
+    ''''
+    Upsample by `scale` from `ni` filters to `nf` (default `ni`), using `nn.PixelShuffle`, `icnr` init, and `weight_norm`.
+    Adapted from: https://github.com/fastai/fastai/blob/master/fastai/layers.py#L374
+    '''
 
     def __init__(self, ni: int, act_fn: nn.Module, nf: int = None, scale: int = 2, blur: bool = False, **kwargs):
         super().__init__()
@@ -174,5 +142,3 @@ class SelfAttention(nn.Module):
         beta = F.softmax(torch.bmm(f.permute(0, 2, 1).contiguous(), g), dim=1)
         o = self.gamma * torch.bmm(h, beta) + x
         return o.view(*size).contiguous()
-
-

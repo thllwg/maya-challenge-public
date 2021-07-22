@@ -1,11 +1,11 @@
 import torch
 from torch import nn as nn
 from torch.nn import functional as F
-from torchvision.models.segmentation.deeplabv3 import DeepLabHead, ASPP
+from torchvision.models.segmentation.deeplabv3 import ASPP
 from torchvision import models
 
-def download(url, filename):
 
+def download(url, filename):
     import functools
     import pathlib
     import shutil
@@ -28,7 +28,8 @@ def download(url, filename):
             shutil.copyfileobj(r_raw, f)
 
     return path
-    
+
+
 class MyDeepLabHead(nn.Sequential):
 
     def __init__(self, in_channels, num_classes, p=0.3, n_feature_maps=512):
@@ -41,6 +42,7 @@ class MyDeepLabHead(nn.Sequential):
             nn.Conv2d(n_feature_maps, num_classes, 1)
         )
 
+
 class MyDeepLabHeadV1(nn.Sequential):
 
     def __init__(self, in_channels, num_classes):
@@ -48,12 +50,13 @@ class MyDeepLabHeadV1(nn.Sequential):
             ASPP(in_channels, [12, 24, 36]),
             nn.Conv2d(256, 512, 3, padding=1, bias=False),
             nn.ReLU(),
-            nn.Conv2d(512, 256, 3, padding=1, bias=False),            
+            nn.Conv2d(512, 256, 3, padding=1, bias=False),
             nn.ReLU(),
-            nn.Dropout(p=0.3),            
+            nn.Dropout(p=0.3),
             nn.Conv2d(256, num_classes, 1)
         )
-        
+
+
 class MyDeepLabHeadV2(nn.Sequential):
 
     def __init__(self, in_channels, num_classes):
@@ -63,7 +66,8 @@ class MyDeepLabHeadV2(nn.Sequential):
             nn.ReLU(),
             nn.Conv2d(56, num_classes, 1)
         )
-        
+
+
 class MyDeepLabHeadV3(nn.Sequential):
 
     def __init__(self, in_channels, num_classes):
@@ -71,12 +75,13 @@ class MyDeepLabHeadV3(nn.Sequential):
             ASPP(in_channels, [12, 24, 36]),
             nn.Conv2d(256, 512, 5, padding=1, bias=False),
             nn.ReLU(),
-            nn.Conv2d(512, 256, 5, padding=1, bias=False),            
+            nn.Conv2d(512, 256, 5, padding=1, bias=False),
             nn.ReLU(),
-            nn.Dropout(p=0.2),            
+            nn.Dropout(p=0.2),
             nn.Conv2d(256, num_classes, 1)
         )
-        
+
+
 class MyDeepLabHeadV4(nn.Sequential):
 
     def __init__(self, in_channels, num_classes):
@@ -84,17 +89,16 @@ class MyDeepLabHeadV4(nn.Sequential):
             ASPP(in_channels, [12, 24, 36]),
             nn.Conv2d(256, 1024, 5, padding=1, bias=False),
             nn.ReLU(),
-            nn.Conv2d(1024, 1024, 5, padding=1, bias=False),            
+            nn.Conv2d(1024, 1024, 5, padding=1, bias=False),
             nn.ReLU(),
-            nn.Dropout(p=0.5),            
+            nn.Dropout(p=0.5),
             nn.Conv2d(1024, num_classes, 1)
         )
-                                
-class DeepLabV3(nn.Module):
 
+
+class DeepLabV3(nn.Module):
     MODEL_URL = "https://uni-muenster.sciebo.de/s/k6xIPWzJ50mm9nB/download?path=%2Fbce_0.0003_0_no-oversampling_bs-16_Jun26_22-31-51_4_eb8a7a46f1b0&files=BestModel_406.pth"
-    #MODEL_URL = "https://uni-muenster.sciebo.de/remote.php/webdav/torch/maya/deeplabv3_bce_0.0003_bs-16_no-oversampling_sampling-pixelshuffle_nup-none_no-selfatt_Jun27_15-17-07_7_eb8a7a46f1b0/BestModel.pth"
-    
+
     def __init__(
             self,
             num_classes: int,
@@ -105,7 +109,7 @@ class DeepLabV3(nn.Module):
             n_feature_maps: int = 256,
             n_freeze_backbone_epochs: int = 10,
             version: str = "v0",
-            device = None
+            device=None
     ):
 
         super().__init__()
@@ -119,7 +123,7 @@ class DeepLabV3(nn.Module):
         self.n_freeze_backbone_epochs = n_freeze_backbone_epochs
         self.version = version
         self.device = device
-        
+
         # keep track of current epoch
         self._current_epoch = 0
 
@@ -128,9 +132,9 @@ class DeepLabV3(nn.Module):
         self.model = models.segmentation.deeplabv3_resnet101(pretrained=False, progress=False)
         self.model.backbone.conv1 = torch.nn.Conv2d(7, 64, (7, 7), (2, 2), (3, 3), bias=False)
         self.model.classifier = MyDeepLabHead(2048, self.num_classes, p=0.1, n_feature_maps=512)
-        
+
         if self.pretrained:
-        
+
             # load pretrained weights from MODEL_URL
             try:
                 st_dict = torch.load("basemodel.pth", map_location=self.device)
@@ -139,16 +143,17 @@ class DeepLabV3(nn.Module):
                 download(self.MODEL_URL, "basemodel.pth")
                 st_dict = torch.load("basemodel.pth", map_location=self.device)
             self.load_state_dict(st_dict['net_params'])
-        
+
         # freeze all backbone layers
         for param in self.model.parameters():
-            param.requires_grad = False        
-            
-        # define new head based on version
+            param.requires_grad = False
+
+            # define new head based on version
         if self.version == "v0":
-        
-            self.model.classifier = MyDeepLabHead(2048, self.num_classes, p=self.dropout_rate, n_feature_maps=self.n_feature_maps)
-            
+
+            self.model.classifier = MyDeepLabHead(2048, self.num_classes, p=self.dropout_rate,
+                                                  n_feature_maps=self.n_feature_maps)
+
         elif self.version == "v1":
 
             self.model.classifier = MyDeepLabHeadV1(2048, self.num_classes)
@@ -156,19 +161,19 @@ class DeepLabV3(nn.Module):
         elif self.version == "v2":
 
             self.model.classifier = MyDeepLabHeadV2(2048, self.num_classes)
-            
+
         elif self.version == "v3":
 
             self.model.classifier = MyDeepLabHeadV3(2048, self.num_classes)
-            
+
         elif self.version == "v4":
 
             self.model.classifier = MyDeepLabHeadV4(2048, self.num_classes)
-                                                
+
         else:
-        
+
             raise Exception(f'Unkown model version {self.version}')
-            
+
         # upsampling
         self.sentinel_upsample = lambda x, size: F.interpolate(
             x, size=size, mode=self.upsampling_sentinel2, align_corners=True
@@ -180,9 +185,9 @@ class DeepLabV3(nn.Module):
         x = torch.cat([lidar, sentinel2], dim=1)
 
         return self.model(x)['out']
-        
+
     def set_current_epoch(self, current_epoch):
-    
+
         self._current_epoch = current_epoch
 
         if self.training and (self._current_epoch == self.n_freeze_backbone_epochs):
@@ -197,14 +202,14 @@ class DeepLabV3(nn.Module):
         st_dict = torch.load(path, map_location=device)
 
         net = nn_model_cls(num_classes=st_dict['num_classes'],
-                        pretrained=st_dict['pretrained'],
-                        upsampling=st_dict['upsampling'],
-                        dropout_rate=st_dict['dropout_rate'],
-                        n_feature_maps=st_dict['n_feature_maps'],
-                        n_freeze_backbone_epochs=st_dict['n_freeze_backbone_epochs'],   
-                        version=st_dict['version'],                           
-                        device=device,                                             
-                )
+                           pretrained=st_dict['pretrained'],
+                           upsampling=st_dict['upsampling'],
+                           dropout_rate=st_dict['dropout_rate'],
+                           n_feature_maps=st_dict['n_feature_maps'],
+                           n_freeze_backbone_epochs=st_dict['n_freeze_backbone_epochs'],
+                           version=st_dict['version'],
+                           device=device,
+                           )
         net.load_state_dict(st_dict['net_params'])
         net.to(device=device)
         return net
@@ -236,7 +241,7 @@ class DeepLabV3(nn.Module):
         st_dict['upsampling_sentinel2'] = net.upsampling_sentinel2
         st_dict['dropout_rate'] = net.dropout_rate
         st_dict['n_feature_maps'] = net.n_feature_maps
-        st_dict['n_freeze_backbone_epochs'] = net.n_freeze_backbone_epochs                        
+        st_dict['n_freeze_backbone_epochs'] = net.n_freeze_backbone_epochs
         st_dict['version'] = net.version
 
         try:
@@ -244,5 +249,3 @@ class DeepLabV3(nn.Module):
             return 1
         except Exception as e:
             return 0
-
-

@@ -11,7 +11,6 @@ from tqdm.auto import tqdm
 
 from src.data.maya_dataset import MayaDataset, MayaTransform
 from src.models.deeplabv3 import DeepLabV3
-from src.models.unet import UNet
 from src.models.unet_adv import UNet as UNetA
 
 from sklearn.calibration import calibration_curve

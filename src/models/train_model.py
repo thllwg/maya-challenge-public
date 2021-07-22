@@ -16,7 +16,6 @@ from tqdm import tqdm
 from src.data.maya_dataset import MayaDataset, MayaTransform, split_data
 from src.models import str2bool
 from src.models.deeplabv3 import DeepLabV3
-from src.models.unet import UNet
 from src.models.unet_adv import UNet as UNetA
 from src.models.eval_model import eval_net
 from src.models.losses import maya_iou, FocalTverskyLoss, add_to_dataset_loss, normalize_loss, add_values, div_values, \
@@ -390,21 +389,7 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
-    if args.model_type == "unet":
-        if args.load:
-            net = UNet.load_model(args.load, device)
-            optimizer = optim.Adam(net.parameters(), lr=args.lr, eps=args.opt_eps)
-            optimizer = UNet.load_optimizer(args.load, optimizer, device)
-            logging.info(f'Model loaded from {args.load}')
-        else:
-            net = UNet(
-                num_classes=3, input_channels_lidar=3, input_channels_sentinel2=4,
-                fusion_idx=args.fusion_idx, act_fct=args.act_fct, norm_layer=args.norm_down,
-                norm_layer_up=args.norm_up
-            )
-            net.to(device)
-            optimizer = optim.Adam(net.parameters(), lr=args.lr, eps=args.opt_eps)
-    elif args.model_type == "deeplabv3":
+    if args.model_type == "deeplabv3":
         if args.load:
             net = DeepLabV3.load_model(args.load, device)
             optimizer = optim.Adam(net.parameters(), lr=args.lr, eps=args.opt_eps)

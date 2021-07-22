@@ -146,18 +146,18 @@ class MayaTransform():
                     #     sigma = random.random() * (max_val - min_val) + min_val
                     #     sentinel1 = TF.adjust_contrast(sentinel1, sigma)
 
-                    # # sentinel 2
-                    min_val = 0.8
-                    max_val = 1.2
-                    if random.random() > 0.75:
-                        sigma = random.random() * (max_val - min_val) + min_val
-                        sentinel2[[0, 1, 2]] = TF.adjust_brightness(sentinel2[[0, 1, 2]], sigma)
-                    if random.random() > 0.75:
-                        sigma = random.random() * (max_val - min_val) + min_val
-                        sentinel2[[0, 1, 2]] = TF.adjust_saturation(sentinel2[[0, 1, 2]], sigma)
-                    if random.random() > 0.75:
-                        sigma = random.random() * (max_val - min_val) + min_val
-                        sentinel2[[0, 1, 2]] = TF.adjust_contrast(sentinel2[[0, 1, 2]], sigma)
+                # # sentinel 2
+                min_val = 0.8
+                max_val = 1.2
+                if random.random() > 0.75:
+                    sigma = random.random() * (max_val - min_val) + min_val
+                    sentinel2[[0, 1, 2]] = TF.adjust_brightness(sentinel2[[0, 1, 2]], sigma)
+                if random.random() > 0.75:
+                    sigma = random.random() * (max_val - min_val) + min_val
+                    sentinel2[[0, 1, 2]] = TF.adjust_saturation(sentinel2[[0, 1, 2]], sigma)
+                if random.random() > 0.75:
+                    sigma = random.random() * (max_val - min_val) + min_val
+                    sentinel2[[0, 1, 2]] = TF.adjust_contrast(sentinel2[[0, 1, 2]], sigma)
 
                 # Gaussian blur
                 if random.random() > 0.75:

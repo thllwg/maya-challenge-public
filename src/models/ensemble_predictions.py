@@ -13,7 +13,6 @@ from src.data.maya_dataset import MayaDataset, MayaTransform
 from src.models import str2bool
 from src.models.deeplabv3 import DeepLabV3
 from src.models.predict_model import predict
-from src.models.unet import UNet
 from src.models.unet_adv import UNet as UNetA
 from src.utils.voting import majority_voting
 
@@ -162,9 +161,7 @@ def bulk_predict(models, input_dir, output_dir, batch_size, test_augmentation, d
 
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         logging.info(f'Using device {device}')
-        if model.type == "unet":
-            net = UNet.load_model(model.path, device)
-        elif model.type == "deeplabv3":
+        if model.type == "deeplabv3":
             net = DeepLabV3.load_model(model.path, device)
         elif model.type == "unet_adv":
             net = UNetA.load_model(model.path, device)
