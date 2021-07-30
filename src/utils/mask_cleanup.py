@@ -2,11 +2,11 @@ import numpy as np
 from scipy import ndimage
 
 
-# # All are absolute values in pixels
+# The following values are in pixels
 MIN_OBJ_SIZE = {
-    'building': 3 , 
-    'platform': 5,
-    'aguada': 20
+    'building': 50,
+    'platform': 85,
+    'aguada': 500
 }
 
 MIN_OBJ_EDGE_ANY = {
@@ -67,8 +67,6 @@ def label_on_edge(ori_labeled_mask, value, check = 'any'):
     '''
     Check can be either any (i.e any pixel) touching the boundary, or 'all' (i.e. all pixels touching the boundary)
     '''
-    # print(labeled_mask, value)
-    # return False;
     labeled_mask = ori_labeled_mask.copy()
     labeled_mask = np.squeeze(labeled_mask)
             
